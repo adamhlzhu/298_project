@@ -163,12 +163,12 @@ if __name__ == "__main__":
 
     # Process‐noise covariance
     Q = np.diag([
-        (0.02)**2,        # v
+        (0.05)**2,        # v
         (0.001)**2,       # CdA 
-        (0.08)**2         # bias
+        (1)**2         # bias
     ])
 
-    R_crank = 30.0   
+    R_crank = 50.0   
 
     # Initial state & covariance
     v0 = float(df["velocity (m/s)"].iloc[0])

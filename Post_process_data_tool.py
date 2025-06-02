@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
 import os
 
-def butter_lowpass_filter(data, cutoff=1.0, fs=100.0, order=5):
+def butter_lowpass_filter(data, cutoff=1.5, fs=100.0, order=4):
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
@@ -133,6 +133,14 @@ def process_acceleration_data(log_number_str, test_date, start_time, stop_time):
         df_needed[col] *= 9.80665
 
     df = df_needed.copy()
+
+    # Subtract the bias from the first 100 samples
+    # bias_x = df['acceleration_x (m/s^2)'].iloc[:100].mean()
+    # bias_y = df['acceleration_y (m/s^2)'].iloc[:100].mean()
+    # bias_z = df['acceleration_z (m/s^2)'].iloc[:100].mean()
+    # df['acceleration_x (m/s^2)'] -= bias_x
+    # df['acceleration_y (m/s^2)'] -= bias_y
+    # df['acceleration_z (m/s^2)'] -= bias_z
     
     # Filter the DataFrame based on start and stop times
     df['time'] = pd.to_datetime(df['time'])
@@ -274,7 +282,7 @@ if __name__ == "__main__":
 
         plt.figure(figsize=(12, 6))
         plt.plot(accel_df['time'].to_numpy(), accel_df['acceleration_y_LOWPASS_filtered (m/s^2)'].to_numpy(), label='Filtered Acceleration Y (m/s²)', color='red')
-        plt.plot(accel_df['time'].to_numpy(), accel_df['acceleration_y (m/s^2)'].to_numpy(), label='Original Acceleration Y (m/s²)', color='orange', linestyle='--', alpha=0.5)
+        #plt.plot(accel_df['time'].to_numpy(), accel_df['acceleration_y (m/s^2)'].to_numpy(), label='Original Acceleration Y (m/s²)', color='orange', linestyle='--', alpha=0.5)
         plt.show()
 
 
