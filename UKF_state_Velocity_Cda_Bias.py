@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 import matplotlib.pyplot as plt
 
 def test_case_generator(log_number_str, test_date, stop_distance):
@@ -216,46 +217,47 @@ if __name__ == "__main__":
     })
     print(df_est.head())
 
-    # Plotting
-    # Speed
-    plt.figure(figsize=(10,4))
-    plt.plot(np.array(df["time"]), np.array(df["velocity (m/s)"]), label="Measured Speed")
-    plt.plot(np.array(times),      np.array(v_est),                label="UKF Speed", color="red")
-    plt.xlabel("Time")
-    plt.ylabel("Velocity (m/s)")
-    plt.title("UKF: Estimated Velocity vs Measured")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    # Create a single figure with 4 subplots and save to 'plot' folder
 
-    # CDA
-    plt.figure(figsize=(10,3))
-    plt.plot(np.array(times), np.array(CdA_est), color="purple")
-    plt.xlabel("Time")
-    plt.ylabel("CdA (m²)")
-    plt.title("UKF: Estimated $C_dA$")
-    plt.grid(True)
-    plt.show()
+    # Ensure the plot directory exists
+    plot_dir = "plot"
+    os.makedirs(plot_dir, exist_ok=True)
 
-    # Bias
-    plt.figure(figsize=(10,3))
-    plt.plot(np.array(times), np.array(df["acceleration_y_LOWPASS_filtered (m/s^2)"].iloc[1:]), label="Measured Acceleration", color="orange")
-    plt.plot(np.array(times), np.array(bias_est),                                label="Estimated Bias",       color="green")
-    plt.xlabel("Time")
-    plt.ylabel("m/s²")
-    plt.title("UKF: Acceleration Bias Estimation")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    fig, axs = plt.subplots(4, 1, figsize=(12, 14), sharex=True)
 
-    # Power
-    plt.figure(figsize=(10,4))
-    plt.plot(np.array(times), np.array(df["power (W)"].iloc[1:]), label="Measured Power", color="blue")
-    plt.plot(np.array(times), np.array(power_pred_buf), label="Predicted Power", color="orange")
-    plt.xlabel("Time")
-    plt.ylabel("Power (W)")
-    plt.title("UKF: Predicted Power vs Measured")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
+    # Speed subplot
+    axs[0].plot(np.array(df["time"]), np.array(df["velocity (m/s)"]), label="Measured Speed")
+    axs[0].plot(np.array(times), np.array(v_est), label="UKF Speed", color="red")
+    axs[0].set_ylabel("Velocity (m/s)")
+    axs[0].set_title("UKF: Estimated Velocity vs Measured")
+    axs[0].legend()
+    axs[0].grid(True)
+
+    # CdA subplot
+    axs[1].plot(np.array(times), np.array(CdA_est), color="purple")
+    axs[1].set_ylabel("CdA (m²)")
+    axs[1].set_title("UKF: Estimated $C_dA$")
+    axs[1].grid(True)
+
+    # Bias subplot
+    axs[2].plot(np.array(times), np.array(df["acceleration_y_LOWPASS_filtered (m/s^2)"].iloc[1:]), label="Measured Acceleration", color="orange")
+    axs[2].plot(np.array(times), np.array(bias_est), label="Estimated Bias", color="green")
+    axs[2].set_ylabel("m/s²")
+    axs[2].set_title("UKF: Acceleration Bias Estimation")
+    axs[2].legend()
+    axs[2].grid(True)
+
+    # Power subplot
+    axs[3].plot(np.array(times), np.array(df["power (W)"].iloc[1:]), label="Measured Power", color="blue")
+    axs[3].plot(np.array(times), np.array(power_pred_buf), label="Predicted Power", color="orange")
+    axs[3].set_xlabel("Time")
+    axs[3].set_ylabel("Power (W)")
+    axs[3].set_title("UKF: Predicted Power vs Measured")
+    axs[3].legend()
+    axs[3].grid(True)
+
+    plt.tight_layout()
+    save_path = os.path.join(plot_dir, f"ukf_results_{log_number_str}_{test_date}_{stop_distance}m.png")
+    plt.savefig(save_path)
+    plt.close(fig)
+    print(f"Plot saved to {save_path}")
